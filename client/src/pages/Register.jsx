@@ -7,6 +7,7 @@ const Register = () => {
   const [name, setName] = useState("");
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
+  const [profileImg, setProfileImg] = useState(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -19,17 +20,22 @@ const Register = () => {
         toast.error("Password does not match");
         return;
       }
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("password", password);
+
+      if (profileImg) {
+        formData.append("profileImg", profileImg);
+      }
       const res = await axios.post(
-        "http://localhost:5000/api/v1/user/register",
-        {
-          name,
-          username,
-          email,
-          password,
-        },
+        `${import.meta.env.VITE_CLOUDINARY_SERVER_URL}/user/register`,
+        formData,
         {
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
           withCredentials: true,
         }
@@ -37,6 +43,7 @@ const Register = () => {
       setIsAuthenticated(true);
       toast.success(res.data.message);
     } catch (error) {
+      console.log(error);
       toast.error(error.response.data.message);
       setIsAuthenticated(false);
     } finally {
@@ -46,6 +53,7 @@ const Register = () => {
   if (isAuthenticated) {
     return <Navigate to={"/"} />;
   }
+  console.log(profileImg);
   return (
     <div className="flex items-center justify-center h-screen w-full px-5 sm:px-0">
       <div className="flex bg-white rounded-lg shadow-lg border overflow-hidden max-w-sm lg:max-w-4xl w-full">
@@ -57,7 +65,10 @@ const Register = () => {
         ></div>
         <div className="w-full p-8 lg:w-1/2">
           <p className="text-xl text-gray-600 text-center">Create an account</p>
-          <form onSubmit={handleRegisterUser}>
+          <form
+            onSubmit={handleRegisterUser}
+            encType="multipart/form-data"
+          >
             <div className="mt-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
                 Name
@@ -97,6 +108,18 @@ const Register = () => {
                 required
               />
             </div>
+            <div className="mt-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Upload profile picture
+              </label>
+              <input
+                className="text-gray-700 border border-gray-300 rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700"
+                type="file"
+                name="profileImg"
+                accept="image/*"
+                onChange={(e) => setProfileImg(e.target.files[0])}
+              />
+            </div>
             <div className="mt-4 flex flex-col justify-between">
               <div className="flex justify-between">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -111,12 +134,6 @@ const Register = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              {/* <a
-                href="#"
-                className="text-xs text-gray-500 hover:text-gray-900 text-end w-full mt-2"
-              >
-                Forget Password?
-              </a> */}
             </div>
             <div className="mt-4 flex flex-col justify-between">
               <div className="flex justify-between">

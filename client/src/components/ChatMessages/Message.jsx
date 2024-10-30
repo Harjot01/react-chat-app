@@ -1,7 +1,12 @@
 import React from "react";
 import clsx from "clsx";
+import { format } from "timeago.js";
+import { useUserStore } from "../../stores/useUserStore";
+import { useFriendStore } from "../../stores/useFriendStore";
 
-const Message = ({ own }) => {
+const Message = ({ own, messageText, timeAgo }) => {
+  const { userProfile } = useUserStore();
+  const { friendProfile } = useFriendStore();
   return (
     <div
       className={clsx(
@@ -15,7 +20,7 @@ const Message = ({ own }) => {
       <div className="w-8 h-8 rounded-full">
         <img
           className="w-8 h-8 rounded-full"
-          src="https://www.biospectrumindia.com/uploads/articles/xpgonn0x_400x400-15957.jpg"
+          src={own ? userProfile.profileImg : friendProfile.profileImg}
           alt=""
         />
       </div>
@@ -24,13 +29,14 @@ const Message = ({ own }) => {
           "w-48",
           "text-white",
           "p-2",
-          { "rounded-br-none": own, "rounded-bl-xl": own, "bg-[#6495ED]": own },
-          "rounded-bl-none",
           "rounded-2xl",
-          "bg-blue-500"
+          own
+            ? "rounded-br-none rounded-bl-xl bg-blue-500"
+            : "rounded-bl-none bg-gray-400"
         )}
       >
-        <p className="text-sm">Hi, are you available tomorrow?</p>
+        <p className="text-sm">{messageText}</p>
+        <p className="text-xs text-end -mt-3">{format(timeAgo)}</p>
       </div>
     </div>
   );

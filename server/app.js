@@ -7,8 +7,11 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./data/database.js";
 import { errorMiddleware } from "./middlewares/error.js";
 import cors from "cors";
+import http from "http";
+import setupSocket from "./socket/index.js";
 
 const app = express();
+const server = http.createServer(app);
 
 config({
   path: ".env",
@@ -36,8 +39,9 @@ app.get("/", (req, res) => {
   res.send("Hi, welcome to the server");
 });
 
-app.use(errorMiddleware);
+setupSocket(server);
 
-app.listen(process.env.PORT, () => {
+app.use(errorMiddleware);
+server.listen(process.env.PORT, () => {
   console.log("Server is running");
 });

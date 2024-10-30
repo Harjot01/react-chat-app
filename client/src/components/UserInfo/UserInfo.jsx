@@ -1,14 +1,16 @@
 import React from "react";
 import { useChatStore } from "../../stores/useChatStore";
+import { useFriendStore } from "../../stores/useFriendStore";
 
 const UserInfo = () => {
-  const { setUserInfoVisible } = useChatStore();
+  const { setIsUserInfoVisible } = useChatStore();
+  const { friendProfile } = useFriendStore();
 
   return (
     <div className="w-full flex flex-col items-center  text-black">
       <div className="flex justify-between w-full items-center px-6 py-2 gap-x-6 bg-white">
         <p className="text-md p-2 font-bold">Contact info</p>
-        <button onClick={setUserInfoVisible}>
+        <button onClick={() => setIsUserInfoVisible(false)}>
           {" "}
           <svg
             viewBox="0 0 24 24"
@@ -28,20 +30,22 @@ const UserInfo = () => {
       <div className="w-full space-y-3 pb-2 bg-white">
         <div className="w-full ">
           <img
-            className="mx-auto rounded-full w-1/2 object-contain"
-            src="https://www.biospectrumindia.com/uploads/articles/xpgonn0x_400x400-15957.jpg"
+            className="mx-auto rounded-full w-1/2 h-1/2 object-contain"
+            src={friendProfile.profileImg}
             alt=""
           />
         </div>
         <div>
-          <p className="text-center font-medium text-lg">Bill Gates</p>
-          <p className="text-center text-xs">@bill_gates</p>
+          <p className="text-center font-medium text-lg">
+            {friendProfile.name}
+          </p>
+          <p className="text-center text-xs">{friendProfile.username}</p>
         </div>
       </div>
 
       <div className="w-full pl-8 p-4 mt-2 space-y-2 bg-white">
         <h2 className="font-bold text-md">About</h2>
-        <p className="text-sm">Building Microsoft</p>
+        <p className="text-sm">{friendProfile.about}</p>
       </div>
       <div className="w-full mt-2 bg-white p-4 pl-8">
         <h2 className="font-bold text-md">Media, links and docs</h2>

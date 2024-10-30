@@ -2,6 +2,7 @@ import { User } from "../models/UserModel.js";
 import bcrypt from "bcrypt";
 import { sendCookie } from "../utils/features.js";
 import { ErrorHandler } from "../middlewares/error.js";
+import cloudinary from "../utils/cloudinary.js";
 export const registerUser = async (req, res, next) => {
   try {
     const { name, username, email, password } = req.body;
@@ -12,6 +13,7 @@ export const registerUser = async (req, res, next) => {
       return next(new ErrorHandler("User Already Exists", 400));
     }
 
+    const result = await cloudinary.uploader.upload(req.file.path);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     user = await User.create({
@@ -19,6 +21,7 @@ export const registerUser = async (req, res, next) => {
       username,
       email,
       password: hashedPassword,
+      profileImg: result.url,
     });
 
     sendCookie(user, res, "User Registered Successfully", 201);
@@ -57,6 +60,25 @@ export const getUserProfile = (req, res) => {
   });
 };
 
+export const updateUserProfile = async (req, res, next) => {
+  try {
+    const { field } = req.params;
+    const { value } = req.body;
+    const user = await User.findOne({ username: req.user.username });
+
+    user[field] = value;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find({ username: { $ne: req.user.username } });
@@ -79,7 +101,7 @@ export const findUser = async (req, res, next) => {
       return next(new ErrorHandler("Requested username cannot be found", 404));
     }
 
-    console.log(user)
+    console.log(user);
     res.status(200).json({
       success: true,
       user,

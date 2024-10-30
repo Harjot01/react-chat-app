@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import ChatMessages from "./ChatMessages/ChatMessages";
 import UserInfo from "./UserInfo/UserInfo";
 import ChatMenu from "./ChatMenu/ChatMenu";
@@ -6,20 +6,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useChatStore } from "../stores/useChatStore";
 import { useUserStore } from "../stores/useUserStore";
 import { Navigate } from "react-router-dom";
+import UpdateUserProfile from "./ChatMenu/UpdateUserProfile";
 
 const Index = () => {
-  const { isUserInfoVisible } = useChatStore();
-  const { isAuthenticated } = useUserStore();
-
+  const { showChats, isUserInfoVisible } = useChatStore();
+  const { isAuthenticated, showUpdateProfileMenu } = useUserStore();
   if (!isAuthenticated) return <Navigate to={"/login"} />;
   return (
     <section className="flex h-[95vh] w-[85vw]">
       <section className="bg-[#f0f0f0] flex-none  w-1/4">
-        <ChatMenu />
+        {showUpdateProfileMenu ? <UpdateUserProfile /> : <ChatMenu />}
       </section>
       <AnimatePresence>
-        <section className="bg-white flex-auto  w-1/2">
-          <ChatMessages />
+        <section className="bg-white text-black flex-auto  w-1/2">
+          {showChats ? <ChatMessages /> : "Start a Conversation"}
         </section>
       </AnimatePresence>
       <AnimatePresence>

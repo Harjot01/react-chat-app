@@ -9,4 +9,7 @@ export const useUserStore = create((set) => ({
 
   isLoading: false,
   setIsLoading: (loading) => set({ isLoading: loading }),
+
+  showUpdateProfileMenu: false,
+  setShowUpdateProfileMenu: (status) => set({ showUpdateProfileMenu: status }),
 }));

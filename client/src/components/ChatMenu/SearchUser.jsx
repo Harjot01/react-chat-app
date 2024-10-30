@@ -1,15 +1,17 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { useChatStore } from "../../stores/useChatStore";
 
 const SearchUser = () => {
   const [friend, setFriend] = useState({});
   const [showFriendMenu, setShowFriendMenu] = useState(false);
   const [searchFriend, setSearchFriend] = useState("");
+  const { setAllConversations } = useChatStore();
   const handleFindFriend = async (e) => {
     try {
       e.preventDefault();
       const res = await axios.post(
-        "http://localhost:5000/api/v1/user/find",
+        `${import.meta.env.VITE_CLOUDINARY_SERVER_URL}/user/find`,
         {
           username: searchFriend,
         },
@@ -25,6 +27,42 @@ const SearchUser = () => {
       console.log(error);
     } finally {
       setShowFriendMenu((prev) => !prev);
+    }
+  };
+
+  const getUserConversations = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_CLOUDINARY_SERVER_URL}/conversations`,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(res.data);
+      setAllConversations(res.data.conversations);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleAddFriend = async (e) => {
+    try {
+      e.preventDefault();
+      const res = await axios.post(
+        `${import.meta.env.VITE_CLOUDINARY_SERVER_URL}/conversations`,
+        {
+          participantUsername: friend.user?.username,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      getUserConversations();
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
@@ -70,8 +108,11 @@ const SearchUser = () => {
         </button>
       </div>
       {showFriendMenu && (
-        <div className="z-10 absolute mt-2 top-36 text-black bg-white w-48 h-32">
-          {friend.user.username}
+        <div className="z-10 flex flex-col items-center justify-center absolute mt-2 top-36 text-black bg-white w-48 h-32">
+          {friend.user?.username}
+          <button className="bg-blue-500" onClick={handleAddFriend}>
+            Add User
+          </button>
         </div>
       )}
     </div>

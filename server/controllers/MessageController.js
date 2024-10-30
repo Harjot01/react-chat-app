@@ -18,7 +18,7 @@ export const sendMessage = async (req, res, next) => {
       chatMessage,
     });
 
-    conversation.lastMessage = message._id;
+    conversation.lastMessage = message;
     await conversation.save();
 
     res.status(201).json({

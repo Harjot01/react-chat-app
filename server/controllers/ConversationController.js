@@ -8,6 +8,10 @@ export const createNewConversation = async (req, res, next) => {
     const { participantUsername } = req.body;
     const currentuserId = req.user._id;
 
+    if (participantUsername === req.user.username) {
+      return next(ErrorHandler("User not found", 404));
+    }
+
     const participant = await User.findOne({ username: participantUsername });
 
     if (!participant) {
@@ -41,7 +45,9 @@ export const getUserConversations = async (req, res, next) => {
   try {
     const conversations = await Conversation.find({
       participants: req.user._id,
-    }).populate("participants", "username");
+    })
+      .populate("participants", "name username profileImg about")
+      .populate("lastMessage", "chatMessage sender timestamp");
 
     res.status(200).json({
       success: true,

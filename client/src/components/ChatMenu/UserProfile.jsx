@@ -1,20 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import { useUserStore } from "../../stores/useUserStore";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 const UserProfile = () => {
-  const { setIsLoading, userProfile, setIsAuthenticated } = useUserStore();
-  const [showMenu, setShowMenu] = useState(false);
+  const {
+    setIsLoading,
+    userProfile,
+    setShowUpdateProfileMenu,
+    setIsAuthenticated,
+  } = useUserStore();
 
   const handleLogoutUser = async (e) => {
     e.preventDefault();
 
     try {
       setIsLoading(true);
-      const res = await axios.get("http://localhost:5000/api/v1/user/logout", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_CLOUDINARY_SERVER_URL}/user/logout`,
+        {
+          withCredentials: true,
+        }
+      );
 
       setIsAuthenticated(false);
 
@@ -26,13 +34,17 @@ const UserProfile = () => {
       setIsLoading(false);
     }
   };
+
+  const handleUpdateProfile = () => {
+    setShowUpdateProfileMenu(true);
+  };
   return (
     <div className="flex justify-between text-black p-6">
       <div className="flex items-center space-x-4">
         <div className="w-10 h-10 bg-gray-500 rounded-full">
           <img
             className="w-10 h-10 rounded-full object-contain"
-            src="https://avatarfiles.alphacoders.com/364/thumb-350-364417.webp"
+            src={userProfile.profileImg}
             alt=""
           />
         </div>
@@ -42,7 +54,7 @@ const UserProfile = () => {
         </div>
       </div>
       <div className="flex space-x-4">
-        <button>
+        <button onClick={handleUpdateProfile}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             x="0px"
@@ -58,58 +70,50 @@ const UserProfile = () => {
             ></path>
           </svg>
         </button>
-        <button onClick={() => setShowMenu(!showMenu)}>
-          <svg
-            viewBox="0 0 24 24"
-            height="24"
-            width="24"
-            preserveAspectRatio="xMidYMid meet"
-            class=""
-            version="1.1"
-            x="0px"
-            y="0px"
-            enable-background="new 0 0 24 24"
-          >
-            <title>menu</title>
-            <path
-              fill="currentColor"
-              d="M12,7c1.104,0,2-0.896,2-2c0-1.105-0.895-2-2-2c-1.104,0-2,0.894-2,2 C10,6.105,10.895,7,12,7z M12,9c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,9.895,13.104,9,12,9z M12,15 c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,15.894,13.104,15,12,15z"
-            ></path>
-          </svg>
-        </button>
 
-        {showMenu && (
-          <div className="z-10 absolute top-24 block  bg-white divide-y divide-gray-100 rounded-lg shadow w-44 ">
-            <ul
-              class="py-2 text-sm text-gray-700 "
-              aria-labelledby="dropdownDefaultButton"
+        <div className="mt-2">
+          <Menu>
+            <MenuButton className="">
+              <svg
+                viewBox="0 0 24 24"
+                height="24"
+                width="24"
+                preserveAspectRatio="xMidYMid meet"
+                class=""
+                version="1.1"
+                x="0px"
+                y="0px"
+                enable-background="new 0 0 24 24"
+              >
+                <title>menu</title>
+                <path
+                  fill="currentColor"
+                  d="M12,7c1.104,0,2-0.896,2-2c0-1.105-0.895-2-2-2c-1.104,0-2,0.894-2,2 C10,6.105,10.895,7,12,7z M12,9c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,9.895,13.104,9,12,9z M12,15 c-1.104,0-2,0.894-2,2c0,1.104,0.895,2,2,2c1.104,0,2-0.896,2-2C13.999,15.894,13.104,15,12,15z"
+                ></path>
+              </svg>
+            </MenuButton>
+
+            <MenuItems
+              transition
+              anchor="bottom end"
+              className="w-52 mt-4 origin-top-right rounded-xl border border-white/5 bg-white p-1 text-sm/6 text-black transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
             >
-              <li>
-                <a href="#" className="block px-4 py-2 hover:bg-gray-100  ">
-                  Dashboard
-                </a>
-              </li>
-              <li>
-                <a href="#" className="block px-4 py-2 hover:bg-gray-100  ">
-                  Settings
-                </a>
-              </li>
-              <li>
-                <a href="#" className="block px-4 py-2 hover:bg-gray-100  ">
-                  Earnings
-                </a>
-              </li>
-              <li>
+              <MenuItem>
+                <button className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-black/10">
+                  Edit
+                </button>
+              </MenuItem>
+              <MenuItem>
                 <button
-                  className="block text-start w-full px-4 py-2 hover:bg-gray-100"
+                  className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-black/10"
                   onClick={handleLogoutUser}
                 >
-                  Sign out
+                  Logout
                 </button>
-              </li>
-            </ul>
-          </div>
-        )}
+              </MenuItem>
+            </MenuItems>
+          </Menu>
+        </div>
       </div>
     </div>
   );
