@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
 
-const socket = io(`${import.meta.env.VITE_CLOUDINARY_SERVER_URL}`);
+const socket = io("https://react-chat-app-backend-eta.vercel.app/");
 
 export default socket;
