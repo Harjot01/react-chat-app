@@ -4,106 +4,51 @@ import clsx from "clsx";
 import EmojiPicker from "emoji-picker-react";
 import { useChatStore } from "../../stores/useChatStore";
 import axios from "axios";
-import { io } from "socket.io-client";
 import { useUserStore } from "../../stores/useUserStore";
+import socket from "../../utils/socket";
 
 const SendMessage = () => {
   const [toggleEmoji, setToggleEmoji] = useState(false);
   const [message, setMessage] = useState("");
-  const { conversationId, chatMessages, setChatMessages } = useChatStore();
+  const {
+    conversationId,
+  } = useChatStore();
   const { userProfile } = useUserStore();
-  const socket = io("http://localhost:5500")
-  const userId = userProfile._id;
 
-  useEffect(() => {
-    // socket.emit("registerUser", { userId, conversationId });
 
-    // socket.on("receiveMessage", ({ conversationId, newMessage }) => {
-    //   console.log(`New message in conversation ${conversationId}: ${newMessage.chatMessage}`);
-
-    //   // setChatMessages(newMessage);
-    //   setChatMessages([...chatMessages, newMessage]);
-
-    //   const output = Array.isArray(chatMessages);
-    //   // console.log("The type in send message is: ", output);
-    // });
-
-    socket.emit("joinConversation", conversationId);
-
-    socket.on("receiveMessage", (data) => {
-      const { message, sender } = data;
-
-      const newMessage = {
-        _id: Date.now(),
-        chatMessage: message,
-        sender: { username: sender },
-        timestamp: new Date().toISOString(),
-        conversationId,
-      };
-
-      setChatMessages(newMessage);
-
-      console.log(
-        `The sender of the message ${message} is ${sender} in room: ${conversationId}`
-      );
-    });
-
-    return () => {
-      socket.off("receiveMessage");
-    };
-  }, [conversationId, setChatMessages]);
-
-  // const handleSendMessage = (e) => {
-  //   e.preventDefault();
-
-  //   socket.emit("sendMessage", { conversationId, message });
-  //   setMessage("");
-  // };
 
   const onEmojiClick = (e) => {
     setMessage((prev) => prev + e.emoji);
   };
 
-  // const handleFetchChatMessages = async () => {
-  //   try {
-  //     const res = await axios.get(
-  //       `${
-  //         import.meta.env.VITE_CLOUDINARY_SERVER_URL
-  //       }/conversations/${conversationId}/messages`,
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     );
-  //     setChatMessages(res.data.messages);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   const handleSendMessage = async (e) => {
     try {
       e.preventDefault();
 
-      // await axios.post(
-      //   `${
-      //     import.meta.env.VITE_CLOUDINARY_SERVER_URL
-      //   }/messages/${conversationId}`,
-      //   {
-      //     chatMessage: message,
-      //   },
-      //   {
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     withCredentials: true,
-      //   }
-      // );
+      await axios.post(
+        `${
+          import.meta.env.VITE_CLOUDINARY_SERVER_URL
+        }/messages/${conversationId}`,
+        {
+          chatMessage: message,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
 
-      socket.emit("sendMessage", {
+      const newMessage = {
+        _id: Date.now(),
+        chatMessage: message,
+        sender: { username: userProfile.username },
+        timestamp: new Date(),
         conversationId,
-        message,
-        sender: userProfile.username,
-      }); // sending the message using sockets realtime
+      };
+
+      socket.emit("sendMessage", newMessage);
       setMessage("");
       setToggleEmoji(false);
     } catch (error) {

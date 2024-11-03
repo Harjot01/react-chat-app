@@ -45,6 +45,8 @@ const SearchUser = () => {
     }
   };
 
+  console.log(friend)
+
   const handleAddFriend = async (e) => {
     try {
       e.preventDefault();
@@ -108,9 +110,15 @@ const SearchUser = () => {
         </button>
       </div>
       {showFriendMenu && (
-        <div className="z-10 flex flex-col items-center justify-center absolute mt-2 top-36 text-black bg-white w-48 h-32">
-          {friend.user?.username}
-          <button className="bg-blue-500" onClick={handleAddFriend}>
+        <div className="z-10 flex gap-y-4 px-12 flex-col items-center justify-center absolute mt-2 top-36 text-black rounded-md bg-white  h-32">
+          <div className="flex flex-row space-x-2 items-center">
+            <img src={friend.user?.profileImg} className="w-10 h-10 bg-black rounded-full object-contain" alt="" />
+            <h2>{friend.user?.username}</h2>
+          </div>
+          <button
+            className="bg-blue-500 text-white text-xs p-2 rounded-md"
+            onClick={handleAddFriend}
+          >
             Add User
           </button>
         </div>

@@ -5,9 +5,12 @@ export const useChatStore = create((set) => ({
   setIsUserInfoVisible: (status) => set({ isUserInfoVisible: status }),
 
   chatMessages: [],
-  setChatMessages: (newMessage) => set((state) => ({
-    chatMessages: [...state.chatMessages, newMessage]
-  })),
+  setChatMessages: (messages) =>
+    set((state) => ({
+      chatMessages: Array.isArray(messages)
+        ? messages
+        : [...state.chatMessages, messages],
+    })),
 
   conversationId: null,
   setConversationId: (id) => set({ conversationId: id }),
@@ -15,7 +18,13 @@ export const useChatStore = create((set) => ({
   showChats: false,
   setShowChats: (status) => set({ showChats: status }),
 
-  allConversations: null,
+  allConversations: [],
   setAllConversations: (conversations) =>
     set({ allConversations: conversations }),
+
+  lastMessages: {},
+  setLastMessages: (lastMessages) => set({ lastMessages }),
+
+  unreadMessages: {},
+  setUnreadMessages: (unreadMessages) => set({ unreadMessages }),
 }));

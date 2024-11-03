@@ -31,7 +31,7 @@ const UserInfo = () => {
         <div className="w-full ">
           <img
             className="mx-auto rounded-full w-1/2 h-1/2 object-contain"
-            src={friendProfile.profileImg}
+            src={friendProfile.profileImg || "images/user.png"}
             alt=""
           />
         </div>

@@ -44,7 +44,7 @@ const UserProfile = () => {
         <div className="w-10 h-10 bg-gray-500 rounded-full">
           <img
             className="w-10 h-10 rounded-full object-contain"
-            src={userProfile.profileImg}
+            src={userProfile.profileImg || "images/user.png"}
             alt=""
           />
         </div>

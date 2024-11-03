@@ -3,27 +3,46 @@ import axios from "axios";
 import { useChatStore } from "../../stores/useChatStore";
 import { useFriendStore } from "../../stores/useFriendStore";
 import { useUserStore } from "../../stores/useUserStore";
-import { format } from "timeago.js";
+import dayjs from "dayjs";
 
 const UserConversations = () => {
   const { setFriendProfile } = useFriendStore();
-  const { allConversations } = useChatStore();
-  const { setShowChats, setConversationId, setChatMessages } = useChatStore();
+  const {
+    allConversations,
+    setShowChats,
+    setConversationId,
+    setChatMessages,
+    lastMessages,
+    unreadMessages,
+    setUnreadMessages,
+  } = useChatStore();
   const { userProfile } = useUserStore();
 
   const handleFetchChatMessages = async (conversationId, friend) => {
     try {
-      // const res = await axios.get(
-      //   `${
-      //     import.meta.env.VITE_CLOUDINARY_SERVER_URL
-      //   }/conversations/${conversationId}/messages`,
-      //   {
-      //     withCredentials: true,
-      //   }
-      // );
-      console.log(conversationId);
-      // setChatMessages(res.data.messages);
+      const res = await axios.get(
+        `${
+          import.meta.env.VITE_CLOUDINARY_SERVER_URL
+        }/conversations/${conversationId}/messages`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      await axios.post(
+        `${
+          import.meta.env.VITE_CLOUDINARY_SERVER_URL
+        }/conversations/${conversationId}/decrement`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+
+      setChatMessages(res.data.messages);
       setConversationId(conversationId);
+      unreadMessages[conversationId] = 0;
+      setUnreadMessages(unreadMessages);
       setFriendProfile(friend);
       setShowChats(true);
     } catch (error) {
@@ -35,10 +54,13 @@ const UserConversations = () => {
   return (
     <div className="text-black mt-8 flex flex-col h-[77vh] overflow-y-auto">
       {allConversations?.map((conversation) => {
-        const { participants, lastMessage } = conversation;
+        const { participants } = conversation;
         const friend = participants.find(
           (participant) => participant.username !== userProfile.username
         );
+
+        const lastMessage = lastMessages[conversation._id];
+        const unreadMessage = unreadMessages[conversation._id];
         return (
           <div
             className="hover:bg-gray-300 w-full p-4  cursor-pointer"
@@ -50,24 +72,25 @@ const UserConversations = () => {
                 <div className="w-10 h-10 bg-gray-500 rounded-full">
                   <img
                     className="w-10 h-10 rounded-full object-cover"
-                    src={friend.profileImg}
+                    src={friend.profileImg || "images/user.png"}
                     alt=""
                   />
                   <div className="relative left-7 bottom-2 text-sm bg-green-500 rounded-full w-3 h-3"></div>
                 </div>
                 <div className="">
                   <h2 className="text-md font-bold">{friend?.name}</h2>
+
                   <p className="text-xs">{lastMessage?.chatMessage}</p>
                 </div>
               </div>
 
               <div className="flex flex-col items-end">
                 <p className="text-sm">
-                  {format(conversation.lastMessage?.timestamp)}
+                  {dayjs(lastMessage?.timestamp).format("hh:mm A")}
                 </p>
-                <p className=" text-center text-xs bg-blue-500 rounded-full text-white h-4 w-4">
-                  1
-                </p>
+                {/* <p className=" text-center text-xs bg-blue-500 rounded-full text-white h-4 w-4">
+                  {unreadMessage !== 0 ? unreadMessage : ""}
+                </p> */}
               </div>
             </div>
           </div>

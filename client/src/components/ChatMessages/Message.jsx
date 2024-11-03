@@ -1,8 +1,8 @@
 import React from "react";
 import clsx from "clsx";
-import { format } from "timeago.js";
 import { useUserStore } from "../../stores/useUserStore";
 import { useFriendStore } from "../../stores/useFriendStore";
+import dayjs from "dayjs";
 
 const Message = ({ own, messageText, timeAgo }) => {
   const { userProfile } = useUserStore();
@@ -36,7 +36,7 @@ const Message = ({ own, messageText, timeAgo }) => {
         )}
       >
         <p className="text-sm">{messageText}</p>
-        <p className="text-xs text-end -mt-3">{format(timeAgo)}</p>
+        <p className="text-xs text-end ">{dayjs(timeAgo).format("hh:mm A")}</p>
       </div>
     </div>
   );

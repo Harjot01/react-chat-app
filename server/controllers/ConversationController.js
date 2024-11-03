@@ -47,12 +47,84 @@ export const getUserConversations = async (req, res, next) => {
       participants: req.user._id,
     })
       .populate("participants", "name username profileImg about")
-      .populate("lastMessage", "chatMessage sender timestamp");
+      .populate("lastMessage", "chatMessage sender timestamp unreadMessages");
 
     res.status(200).json({
       success: true,
       conversations,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const incrementUnreadMessages = async (req, res, next) => {
+  try {
+    const { conversationId } = req.params;
+    const senderId = req.user._id;
+
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) {
+      return next(new ErrorHandler("Conversation not found", 404));
+    }
+
+    const receiverId = conversation.participants.find(
+      (participant) => participant.toString() != senderId.toString()
+    );
+
+    if (!receiverId) {
+      return next(
+        new ErrorHandler("Receiver not found in the conversation", 404)
+      );
+    }
+
+    await Conversation.updateOne(
+      { _id: conversationId },
+      {
+        $inc: { "unreadMessages.count": 1 },
+        $set: { "unreadMessages.userId": receiverId }
+      }
+    );
+
+    res.status(200).json({ message: "Unread messages count incremented" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const decrementUnreadMessages = async (req, res, next) => {
+  try {
+    const { conversationId } = req.params;
+    const senderId = req.user._id;
+
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) {
+      return next(new ErrorHandler("Conversation not found", 404));
+    }
+
+    const receiverId = conversation.participants.find(
+      (participant) => participant.toString() != senderId.toString()
+    );
+
+    if (!receiverId) {
+      return next(
+        new ErrorHandler("Receiver not found in the conversation", 404)
+      );
+    }
+
+    await Conversation.updateOne(
+      { _id: conversationId },
+      {
+        $set: {
+          "unreadMessages.count": 0,
+          "unreadMessages.userId": receiverId,
+        },
+      }
+    );
+
+    res.status(200).json({ message: "Unread messages count set to zero" });
   } catch (error) {
     next(error);
   }

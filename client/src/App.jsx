@@ -8,6 +8,7 @@ import axios from "axios";
 import { useUserStore } from "./stores/useUserStore";
 import Loader from "./components/Loader/Loader";
 import { useChatStore } from "./stores/useChatStore";
+import socket from "./utils/socket";
 
 const App = () => {
   const {
@@ -18,12 +19,20 @@ const App = () => {
     setIsAuthenticated,
   } = useUserStore();
 
-  const { setAllConversations, setIsUserInfoVisible, setShowChats } =
-    useChatStore();
-
+  const {
+    setAllConversations,
+    setIsUserInfoVisible,
+    setShowChats,
+    lastMessages,
+    setLastMessages,
+    setUnreadMessages,
+    setChatMessages,
+    conversationId,
+    unreadMessages,
+  } = useChatStore();
 
   useEffect(() => {
-    const fetchDefault = async () => {
+    const getUserProfile = async () => {
       try {
         setIsLoading(true);
         const res = await axios.get(
@@ -46,22 +55,52 @@ const App = () => {
 
     const getUserConversations = async () => {
       try {
+        setIsLoading(true);
+
         const res = await axios.get(
           `${import.meta.env.VITE_CLOUDINARY_SERVER_URL}/conversations`,
           {
             withCredentials: true,
           }
         );
-        console.log(res.data);
-        setAllConversations(res.data.conversations);
+        const conversations = res.data.conversations;
+        setAllConversations(conversations);
+
+        const initialLastMessages = {};
+        const intialUnreadMessages = {};
+        conversations.forEach((conversation) => {
+          initialLastMessages[conversation._id] =
+            conversation.lastMessage || null;
+        });
+
+        setLastMessages(initialLastMessages);
+        setUnreadMessages(intialUnreadMessages);
       } catch (error) {
         console.log(error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchDefault();
+    getUserProfile();
     getUserConversations();
   }, [isAuthenticated]);
+
+  useEffect(() => {
+
+    socket.emit("joinConversation", conversationId);
+
+    socket.on("receiveMessage", (newMessage) => {
+      if (newMessage.conversationId === conversationId) {
+        setChatMessages(newMessage);
+      }
+    });
+    socket.on("lastMessage", (newMessage) => {
+      const { conversationId } = newMessage;
+      lastMessages[conversationId] = newMessage;
+      setLastMessages(lastMessages);
+    });
+  }, [conversationId]);
 
   if (isLoading) {
     return <Loader />;

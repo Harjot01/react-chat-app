@@ -29,7 +29,7 @@ const Register = () => {
 
       if (profileImg) {
         formData.append("profileImg", profileImg);
-      }
+      } 
       const res = await axios.post(
         `${import.meta.env.VITE_CLOUDINARY_SERVER_URL}/user/register`,
         formData,
