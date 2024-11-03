@@ -41,7 +41,7 @@ const App = () => {
             withCredentials: true,
           }
         );
-        setUserProfile(res.data.user);
+        setUserProfile(res?.data.user);
         setIsAuthenticated(true);
       } catch (error) {
         console.log(error);
@@ -63,7 +63,7 @@ const App = () => {
             withCredentials: true,
           }
         );
-        const conversations = res.data.conversations;
+        const conversations = res?.data.conversations;
         setAllConversations(conversations);
 
         const initialLastMessages = {};
