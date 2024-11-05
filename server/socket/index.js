@@ -20,9 +20,6 @@ const setupSocket = (server) => {
 
       io.to(conversationId).emit("lastMessage", newMessage);
 
-      socket.broadcast
-        .to(conversationId)
-        .emit("updateUnreadMessages", newMessage);
     });
   });
 

@@ -29,20 +29,8 @@ const UserConversations = () => {
         }
       );
 
-      await axios.post(
-        `${
-          import.meta.env.VITE_CLOUDINARY_SERVER_URL
-        }/conversations/${conversationId}/decrement`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-
       setChatMessages(res.data.messages);
       setConversationId(conversationId);
-      unreadMessages[conversationId] = 0;
-      setUnreadMessages(unreadMessages);
       setFriendProfile(friend);
       setShowChats(true);
     } catch (error) {
@@ -60,7 +48,6 @@ const UserConversations = () => {
         );
 
         const lastMessage = lastMessages[conversation._id];
-        const unreadMessage = unreadMessages[conversation._id];
         return (
           <div
             className="hover:bg-gray-300 w-full p-4  cursor-pointer"

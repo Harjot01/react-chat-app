@@ -45,7 +45,6 @@ const SearchUser = () => {
     }
   };
 
-  console.log(friend)
 
   const handleAddFriend = async (e) => {
     try {
